@@ -427,9 +427,9 @@ def version_key(text):
     then the Linux build number ('0.4-linux.57' -> (0, 4, 0, 0, 57)). Joining all the digits, as
     the Windows launcher does, compared 0.4-linux.57 above 0.4.1-linux.60."""
     import re
-    match = re.match(r'v?(\d+(?:\.\d+)*)(?:-[a-zA-Z_]+\.(\d+))?', (text or '').strip())
+    match = re.match(r'v?(\d+(?:\.\d+)*)(?:-[a-z]+\.(\d+))?', (text or '').strip())
     if not match:
-        return (0, 0, 0, 0, 0)
+        return (0,)
     upstream = [int(part) for part in match.group(1).split('.')][:4]
     return tuple(upstream + [0] * (4 - len(upstream))) + (int(match.group(2) or 0),)
 

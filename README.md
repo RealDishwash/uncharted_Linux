@@ -1,7 +1,6 @@
 # Uncharted: The Nathan Drake Collection for Linux/Steam Deck
 **WORK IN PROGRESS. READ BELOW FOR CURRENT PROGRESS ON EACH GAME**
-> **Fork Notice (`RealDishwash/uncharted_Linux`):**
-> Performance-focused build of the Uncharted port tailored for the user's Steam Deck. This build is self-contained and updates exclusively from [RealDishwash/uncharted_Linux](https://github.com/RealDishwash/uncharted_Linux) releases.
+> **About this fork:** a performance-focused build of [spacepepperoni/uncharted_Linux](https://github.com/spacepepperoni/uncharted_Linux) for the Steam Deck, with selected open pull requests from it and from [Supermedo/uncharted_pc](https://github.com/Supermedo/uncharted_pc) merged. The launcher updates only from this fork's releases.
 
 
 👾Join the Discord: https://discord.gg/X2YhSJg6R2

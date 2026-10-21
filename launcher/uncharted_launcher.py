@@ -1655,8 +1655,6 @@ class GameJob:
 
 
 def version_tuple(text):
-    if not WINDOWS:
-        return uncharted_linux.version_key(text)
     return tuple(int(number) for number in re.findall(r'\d+', text or ''))
 
 

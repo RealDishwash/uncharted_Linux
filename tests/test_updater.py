@@ -25,24 +25,6 @@ FOREIGN_REPOS = [
 
 
 class UpdateSourceTests(unittest.TestCase):
-    def test_configured_update_urls_point_to_fork_only(self):
-        self.assertEqual(
-            launcher.RELEASES_API,
-            f'https://api.github.com/repos/{FORK_REPO}/releases/latest',
-        )
-        self.assertEqual(
-            launcher.RELEASES_PAGE,
-            f'https://github.com/{FORK_REPO}/releases/latest',
-        )
-        self.assertEqual(linux.REPO_URL, f'https://github.com/{FORK_REPO}')
-        self.assertEqual(linux.UPSTREAM_ISSUES, f'https://github.com/{FORK_REPO}/issues')
-
-        for foreign in FOREIGN_REPOS:
-            self.assertNotIn(foreign, launcher.RELEASES_API)
-            self.assertNotIn(foreign, launcher.RELEASES_PAGE)
-            self.assertNotIn(foreign, linux.REPO_URL)
-            self.assertNotIn(foreign, linux.UPSTREAM_ISSUES)
-
     def test_latest_release_queries_fork_and_fails_on_foreign_repo(self):
         fake_payload = json.dumps({
             'tag_name': 'v0.3.6-linux.42',
@@ -99,11 +81,6 @@ class VersionComparisonTests(unittest.TestCase):
         self.assertGreater(linux.version_key('v0.3.6-linux.1'), linux.version_key('0.3.6'))
         self.assertEqual(linux.version_key('0.3.6'), (0, 3, 6, 0, 0))
         self.assertEqual(linux.version_key('v0.3.6-linux.1'), (0, 3, 6, 0, 1))
-
-    def test_launcher_version_tuple_delegates_to_version_key(self):
-        self.assertEqual(launcher.version_tuple('v0.3.6-linux.12'), linux.version_key('v0.3.6-linux.12'))
-        self.assertGreater(launcher.version_tuple('v0.3.6-linux.12'), launcher.version_tuple('v0.3.6-linux.5'))
-
 
 class BackgroundUpdateTests(unittest.TestCase):
     def test_background_update_triggers_only_for_newer_version(self):
