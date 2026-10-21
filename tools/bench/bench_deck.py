@@ -170,7 +170,9 @@ def main():
                 gameplay_started = True
                 print(f"Gameplay detected in {time.time() - t_load:.1f}s (brightness {b5:.1f})", flush=True)
                 break
-
+        elif time.time() - t_load > 5.0 and int(time.time() - t_load) % 4 == 0:
+            # If dialog took longer to show up, press cross to ensure it dismisses
+            press(wdir, 'cross 0.3')
     if not gameplay_started:
         print("FAIL: gameplay not reached within 90s")
         subprocess.run(['systemctl', '--user', 'stop', 'unch-nav.service'])
