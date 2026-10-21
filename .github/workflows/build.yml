@@ -17,13 +17,33 @@ on:
       - 'docs/**'
       - '.github/workflows/sync-upstream.yml'
   workflow_dispatch:
+    inputs:
+      march:
+        description: 'CPU architecture (znver2, or blank for generic)'
+        required: false
+        default: 'znver2'
+      pgo:
+        description: 'PGO mode (use, generate, off, or blank for auto)'
+        required: false
+        default: ''
+      opt:
+        description: 'Optimization level for bb-probe (-O2 or -O3)'
+        required: false
+        default: '-O2'
   # sync-upstream.yml builds a merge of upstream before it reaches main (no release then).
   workflow_call:
     inputs:
       ref:
         type: string
         required: true
-
+      march:
+        type: string
+        required: false
+        default: ''
+      pgo:
+        type: string
+        required: false
+        default: ''
 permissions:
   contents: write
 
@@ -57,6 +77,9 @@ jobs:
       - name: Build
         run: |
           git config --global --add safe.directory '*'
+          export BB_MARCH="${{ inputs.march != '' && inputs.march || (github.ref == 'refs/heads/main' && 'znver2' || '') }}"
+          export BB_PGO="${{ inputs.pgo || '' }}"
+          export BB_OPT="${{ inputs.opt || '-O2' }}"
           BB_JOBS=3 bash build.sh
       - name: Package
         run: |
@@ -67,14 +90,14 @@ jobs:
         with:
           name: uncharted-linux
           path: |
-            dist/Uncharted-x86_64.AppImage
-            dist/uncharted-linux.tar.gz
+            dist/Uncharted*.AppImage
+            dist/uncharted-linux*.tar.gz
       - name: Release
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !inputs.ref
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           apt-get install -yq --no-install-recommends gh >/dev/null
-          gh release create "$TAG" dist/Uncharted-x86_64.AppImage dist/uncharted-linux.tar.gz --repo "$GITHUB_REPOSITORY" \
+          gh release create "$TAG" dist/Uncharted*.AppImage dist/uncharted-linux*.tar.gz --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" --title "Uncharted for Linux/Steam Deck $TAG" \
-            --notes "Built from $(git log -1 --format='%h %s'). Install steps: see the README."
+            --notes "Built from $(git log -1 --format='%h %s'). Variant: ${BB_MARCH:-generic}${BB_PGO:+ PGO $BB_PGO}."

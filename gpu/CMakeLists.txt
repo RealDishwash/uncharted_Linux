@@ -18,13 +18,18 @@ endif()
 # Frame pointers keep the loader's thread dumps (watchdog, SIGUSR2 sampling) walkable.
 add_compile_options(-fno-omit-frame-pointer)
 
+set(BB_MARCH "" CACHE STRING "CPU target architecture (e.g. znver2)")
+if (BB_MARCH)
+    add_compile_options(-march=${BB_MARCH} -mtune=${BB_MARCH})
+endif()
+
 # bbport: link-time optimization (BB_LTO, default on) and profile-guided optimization
 # (BB_PGO: off, generate = instrumented build writing into BB_PGO_DIR, use = build with that
-# profile). Covers bbgpu and the static libraries linked into it. No -march: the same build
-# runs on the Steam Deck.
+# profile). Covers bbgpu and the static libraries linked into it.
 option(BB_LTO "Link-time optimization of bbgpu" ON)
 set(BB_PGO "off" CACHE STRING "Profile-guided optimization: off, generate, use")
-set(BB_PGO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../pgo" CACHE PATH "Profile directory")
+get_filename_component(BB_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." ABSOLUTE)
+set(BB_PGO_DIR "${BB_ROOT_DIR}/pgo" CACHE PATH "Profile directory")
 if (BB_LTO)
     include(CheckIPOSupported)
     check_ipo_supported(RESULT bb_ipo_ok OUTPUT bb_ipo_error)
@@ -36,15 +41,17 @@ if (BB_LTO)
 endif()
 if (BB_PGO STREQUAL "generate")
     # Atomic counters: the GPU, recording, preparation and copy threads run the same code.
-    add_compile_options(-fprofile-generate=${BB_PGO_DIR} -fprofile-update=atomic)
-    add_link_options(-fprofile-generate=${BB_PGO_DIR})
+    add_compile_options(-fprofile-generate=${BB_PGO_DIR} -fprofile-update=atomic -fprofile-prefix-path=${BB_ROOT_DIR})
+    add_link_options(-fprofile-generate=${BB_PGO_DIR} -fprofile-prefix-path=${BB_ROOT_DIR})
     add_compile_definitions(BB_PGO_GENERATE)
 elseif (BB_PGO STREQUAL "use")
     # Partial training keeps unprofiled code optimized normally; counters from concurrent
     # threads can be slightly inconsistent (correction). Functions changed since the profile
     # (or built differently for it, bbgpu_init) are compiled without it.
     add_compile_options(-fprofile-use=${BB_PGO_DIR} -fprofile-partial-training
-                        -fprofile-correction -Wno-missing-profile -Wno-coverage-mismatch)
+                        -fprofile-correction -Wno-missing-profile -Wno-coverage-mismatch
+                        -fprofile-prefix-path=${BB_ROOT_DIR})
+    add_link_options(-fprofile-use=${BB_PGO_DIR} -fprofile-prefix-path=${BB_ROOT_DIR})
 endif()
 
 find_package(Vulkan REQUIRED)
