@@ -1864,13 +1864,25 @@ void Rasterizer::NoteSmallWrittenBuffers(const Shader::Info& stage) {
 }
 
 void Rasterizer::ReadBackSmallWrittenBuffers() {
+    // Linux fork: copied without waiting for the GPU (BufferCache::ReadMemoryAsync): the game
+    // gets the value once the GPU is past the event instead of right at it. Waiting for the GPU
+    // at every end-of-pipe event (ReadMemory) cost Uncharted 1 on the Steam Deck 40% of its
+    // frame rate. BB_READBACK_SMALL_BUFFERS=sync: the waiting copy.
+    static const bool sync = [] {
+        const char* env = std::getenv("BB_READBACK_SMALL_BUFFERS");
+        return env && std::string_view{env} == "sync";
+    }();
     std::vector<std::pair<VAddr, u32>> ranges;
     {
         std::scoped_lock lk{small_written_mutex};
         ranges.swap(small_written_buffers);
     }
     for (const auto& [address, size] : ranges) {
-        buffer_cache.ReadMemory(address, size, false, true);
+        if (sync) {
+            buffer_cache.ReadMemory(address, size, false, true);
+        } else {
+            buffer_cache.ReadMemoryAsync(address, size);
+        }
     }
 }
 
