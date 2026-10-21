@@ -232,6 +232,20 @@ def cmd_run(args):
     run_summaries = []
 
     for r in range(1, repeats + 1):
+        local_run_dir = results_dir / f"run_{r}"
+        summary_file = local_run_dir / "summary.json"
+        if summary_file.is_file() and not getattr(args, 'force', False):
+            print(f"\n--- Run {r}/{repeats} for {label} ({mode}) [already completed, loading] ---")
+            summary = json.loads(summary_file.read_text())
+            run_summaries.append(summary)
+            print(
+                f"Run {r} Result: {summary['avg_fps']:.1f} FPS (1% low: {summary['low_1pct_fps']:.1f} FPS), "
+                f"p99={summary['p99_frame_ms']:.1f}ms, GPU thread={summary['gpu_thread_us_draw']:.2f} us/draw, "
+                f"idle={summary['gpu_thread_idle_pct']:.1f}%, host copies wait={summary['gpu_thread_host_copies_wait_pct']:.1f}%, "
+                f"GPU busy={summary['gpu_busy_pct']:.1f}%"
+            )
+            continue
+
         print(f"\n--- Run {r}/{repeats} for {label} ({mode}) ---")
         run_work = f"{DECK_BASE}/work-{label}-{scene}-{mode}-r{r}"
         prep_cmd = (
@@ -240,7 +254,6 @@ def cmd_run(args):
             f"cp -a {warm_cache_dir}/cache {run_work}/user/"
         )
         ssh(prep_cmd)
-
         run_cmd = f"python3 {DECK_BASE}/bench_deck.py {DECK_BASE}/builds/{label} {run_work} {nav_hz} {nav_present} {seconds}"
         t_start = time.time()
         res = ssh(run_cmd, check=False)
