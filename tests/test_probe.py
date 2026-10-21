@@ -1,6 +1,7 @@
 """Boundary tests for the native loader; uses tiny synthetic x86-64 images."""
 from paths import ROOT
 from pathlib import Path
+import os
 import struct
 import subprocess
 import tempfile
@@ -46,12 +47,24 @@ class LoaderTests(unittest.TestCase):
                     self.assertEqual(r.returncode,1,r.stdout+r.stderr)
                     self.assertIn('content profile',r.stderr)
 
-    def run_image(self, data, *options):
+    def run_image(self, data, *options, env=None):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'boot.bin'
             path.write_bytes(data)
             return subprocess.run([str(EXE.resolve()), str(path), '--cpu-only', *options],
-                                  capture_output=True, text=True, timeout=5)
+                                  capture_output=True, text=True, timeout=5, env=env)
+
+    def test_first_start_creates_missing_data_directory_parents(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data_home = Path(tmp) / 'new-home' / 'nested' / 'data'
+            env = os.environ.copy()
+            env.pop('BB_GPU_USER_DIR', None)
+            env['XDG_DATA_HOME'] = str(data_home)
+            code = b'\xff\x25\x02\0\0\0\x90\x90'
+            result = self.run_image(package(code, [(8, 1, 0, 0)], ['fresh-home-import']), env=env)
+            self.assertEqual(result.returncode, 20, result.stdout + result.stderr)
+            self.assertIn('first unsupported PS4 import: fresh-home-import', result.stdout)
+            self.assertTrue((data_home / 'shadPS4' / 'cache').is_dir())
 
     def test_original_instruction_reaches_named_import(self):
         # jmp [rip+2]; two padding bytes; relocated function pointer at +8

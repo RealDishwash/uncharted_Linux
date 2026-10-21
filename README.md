@@ -67,6 +67,9 @@ bundle also needs its AMD notices and a verified source/notices package for down
 shader modifications. This integration does not change those release permissions.
 FSR 3 remains available without those optional assets.
 
+First startup creates missing parent directories for the GPU data/cache location, including
+a new XDG data directory or a fresh home directory.
+
 ## Files needed 
 
 You must have an unencrypted extracted dump of the Uncharted: The Nathan Drake Collection (CUSA02320) v1.00.
