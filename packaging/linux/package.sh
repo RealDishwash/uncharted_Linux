@@ -56,7 +56,17 @@ cp scripts/prepare.py scripts/link_modules.py scripts/link_libc.py scripts/conte
 cp run.py LICENSE "$dest/"
 cp launcher/uncharted.png "$dest/launcher/"
 cp README.md "$dest/README.md"
-echo "${LINUX_BUILD:-}" > "$dest/LINUX_BUILD"
+variant=$(cat out/BUILD_VARIANT 2>/dev/null || echo "")
+if [[ -z $variant ]]; then
+    if [[ -n ${BB_MARCH:-} ]]; then variant="${variant}${variant:+-}${BB_MARCH}"; fi
+    if [[ ${BB_PGO:-} == generate ]]; then variant="${variant}${variant:+-}pgo-generate";
+    elif [[ ${BB_PGO:-} == use ]]; then variant="${variant}${variant:+-}pgo"; fi
+fi
+linux_build="${LINUX_BUILD:-}"
+if [[ -n $variant && -n $linux_build && "$linux_build" != *"$variant"* ]]; then
+    linux_build="${linux_build}-${variant}"
+fi
+echo "${linux_build}" > "$dest/LINUX_BUILD"
 for license in gpu/third_party/httplib/LICENSE:cpp-httplib launcher/fonts/OFL.txt:Cinzel; do
     if [[ -f ${license%%:*} ]]; then cp "${license%%:*}" "$dest/licenses/${license##*:}-LICENSE.txt"; fi
 done
@@ -70,6 +80,9 @@ done
 find "$dest" -name __pycache__ -prune -exec rm -r {} +
 mkdir -p dist
 tar -C out/stage -czf dist/uncharted-linux.tar.gz uncharted-linux
+if [[ -n $variant ]]; then
+    cp -f dist/uncharted-linux.tar.gz "dist/uncharted-linux-${variant}.tar.gz"
+fi
 
 # The AppImage: the same files in one executable. Saves, settings and generated files go to
 # ~/.local/share/uncharted-linux, since the AppImage itself is read-only.
@@ -87,4 +100,7 @@ if [[ ! -x $tool ]]; then
 fi
 # Extract-and-run: works without FUSE (containers, CI).
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --no-appstream "$appdir" dist/Uncharted-x86_64.AppImage >/dev/null
-ls -lh dist/uncharted-linux.tar.gz dist/Uncharted-x86_64.AppImage
+if [[ -n $variant ]]; then
+    cp -f dist/Uncharted-x86_64.AppImage "dist/Uncharted-x86_64-${variant}.AppImage"
+fi
+ls -lh dist/uncharted-linux*.tar.gz dist/Uncharted*.AppImage
