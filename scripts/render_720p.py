@@ -65,7 +65,7 @@ def writes(elf, fields=None):
                 rel = struct.unpack_from('<i', elf, site - 4)[0] + 1  # jmp rel32 is one byte shorter
                 out.append((site - 6 - base, b'\xe9' + struct.pack('<i', rel) + b'\x90'))
                 continue
-        for at in range(site, end):
+        for at in range(site, min(end, len(elf) - 3)):
             value = struct.unpack_from('<I', elf, at)[0]
             new = {WIDTH: NEW_WIDTH, HEIGHT: NEW_HEIGHT, WIDTH // 8: NEW_WIDTH // 8,
                    HEIGHT // 4: NEW_HEIGHT // 4}.get(value)

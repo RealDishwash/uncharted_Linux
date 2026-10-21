@@ -71,10 +71,30 @@ class Render720pTests(unittest.TestCase):
         self.assertEqual(blob[:8], b'BBPATCH2')
         self.assertEqual(struct.unpack_from('<QQ', blob, 8), (0x400000, count))
 
-    def test_other_executables_are_left_alone(self):
-        data, _ = elf(setup(0x47), decoder())
-        with self.assertRaises(ValueError):
-            render_720p.writes(data)
+    def test_single_setup_through_each_supported_register(self):
+        for reg in (0x40, 0x41, 0x42, 0x43, 0x45, 0x46, 0x47):
+            for extended in (False, True):
+                with self.subTest(reg=reg, extended=extended):
+                    code = setup(reg)
+                    if extended:
+                        code = b''.join(b'\x41' + code[i:i + 7] for i in range(0, len(code), 7))
+                    data, (site, dec) = elf(code, decoder())
+                    patched = bytearray(data)
+                    for offset, value in render_720p.writes(data):
+                        patched[BASE + offset:BASE + offset + len(value)] = value
+                    stride, prefix = (8, 1) if extended else (7, 0)
+                    for index, expected in enumerate((1280, 720, 1280, 720, 1280, 720,
+                                                       160, 180, 1280, 720)):
+                        self.assertEqual(struct.unpack_from('<I', patched,
+                                         BASE + site + index * stride + prefix + 3)[0], expected)
+                    self.assertEqual(struct.unpack_from('<I', patched, BASE + dec + 4)[0], 1280)
+                    self.assertEqual(struct.unpack_from('<I', patched, BASE + dec + 12)[0], 720)
+
+    def test_missing_or_excessive_settings_are_rejected(self):
+        for pieces in ((decoder(),), (setup(0x47),) * 4):
+            data, _ = elf(*pieces)
+            with self.assertRaises(ValueError):
+                render_720p.writes(data)
 
 
 if __name__ == '__main__':
