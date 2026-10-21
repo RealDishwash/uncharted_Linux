@@ -1,5 +1,8 @@
 # Uncharted: The Nathan Drake Collection for Linux/Steam Deck
 **WORK IN PROGRESS. READ BELOW FOR CURRENT PROGRESS ON EACH GAME**
+> **Fork Notice (`RealDishwash/uncharted_Linux`):**
+> Performance-focused build of the Uncharted port tailored for the user's Steam Deck. This build is self-contained and updates exclusively from [RealDishwash/uncharted_Linux](https://github.com/RealDishwash/uncharted_Linux) releases.
+
 
 👾Join the Discord: https://discord.gg/X2YhSJg6R2
 
@@ -21,13 +24,13 @@
 ❌ Not Supported: Ubuntu 22.04 and older, Linux Mint 21 and older, Debian 12 and older 
 
 ## Download
-1. Download **[Uncharted-x86_64.AppImage](https://github.com/spacepepperoni/uncharted_Linux/releases/latest/download/Uncharted-x86_64.AppImage)**.
+1. Download **[Uncharted-x86_64.AppImage](https://github.com/RealDishwash/uncharted_Linux/releases/latest/download/Uncharted-x86_64.AppImage)**.
 2. Right-click it, open **Properties → Permissions** and tick **Is executable** (or
    **Allow executing file as program**).
 
 ## Updates
 
-This client ships with a built in updater that can be toggled on/off, and updates from two sources: the main repo & this fork. 
+This client ships with a built in updater that can be toggled on/off, and updates exclusively from this fork (`RealDishwash/uncharted_Linux`). 
 
 - If opening the launcher itself, you'll see available updates in the bottom left of the launcher.
 <img width="400" height="98" alt="image" src="https://github.com/user-attachments/assets/911e9ded-29b0-465b-8c18-5f589e987063" />
@@ -37,7 +40,7 @@ This client ships with a built in updater that can be toggled on/off, and update
 
 
 ## Steam Deck
-- For Steam Deck, it is recommended to install the [.AppImage](https://github.com/spacepepperoni/uncharted_Linux/releases/latest/download/Uncharted-x86_64.AppImage) and add the games to Steam to play in Game Mode. 
+- For Steam Deck, it is recommended to install the [.AppImage](https://github.com/RealDishwash/uncharted_Linux/releases/latest/download/Uncharted-x86_64.AppImage) and add the games to Steam to play in Game Mode. 
 - In the Display tab, a Steam Deck mode is auto-selected if you are on SteamOS. With this enabled, expect an average of 25-30fps with occasional dips during demanding segments.
 - It is recommended to set your FPS cap to 30fps on the Steam Deck power menu.
 

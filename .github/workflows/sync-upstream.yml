@@ -6,8 +6,7 @@
 name: Sync with upstream
 
 on:
-  schedule:
-    - cron: '17 */6 * * *'
+  # Automatic syncing disabled: manual trigger only to prevent foreign code from silently replacing builds
   workflow_dispatch:
     inputs:  # for testing the workflow against another source; normally left as they are
       repo:
