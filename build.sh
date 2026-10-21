@@ -97,7 +97,13 @@ echo "Built $PWD/out/bb-probe"
 # GPU check for run.sh (live_resolution=auto): links only the Vulkan loader.
 "$CC" -std=c11 -O2 -Wall -Wextra -Werror tools/gpu_capabilities.c "${libraries[@]}" -o out/bb-gpu-capabilities
 if [[ ${1:-} == --test ]]; then
-    "$CC" -std=c11 -O2 -g -Wall -Wextra -Werror -pthread "${includes[@]}" -I. -Isrc tests/test_pad.c "${libraries[@]}" -o out/pad-test
+    # test_pad includes runtime_pad.c to inspect the guest ABI; link its other host dependencies
+    # against the real runtime/GPU bridge rather than maintaining incomplete bridge substitutes.
+    pad_runtime=()
+    for source in "${runtime[@]}"; do
+        [[ $source == src/runtime_pad.c ]] || pad_runtime+=("$source")
+    done
+    "$CC" -std=c11 -O2 -g -Wall -Wextra -Werror -pthread "${includes[@]}" -I. -Isrc tests/test_pad.c "${pad_runtime[@]}" out/libatrac9.a -lm "${gpu[@]}" "${libraries[@]}" -o out/pad-test
     out/pad-test
     "$CC" -std=c11 -O2 -g -Wall -Wextra -Werror -pthread -I. -Isrc tests/test_runtime.c "${runtime[@]}" out/libatrac9.a -lm "${gpu[@]}" "${libraries[@]}" -o out/runtime-test
     out/runtime-test

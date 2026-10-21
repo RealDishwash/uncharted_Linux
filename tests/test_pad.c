@@ -5,10 +5,6 @@
 
 static int capture;
 int bbgpu_overlay_captures_input(void) { return capture; }
-uintptr_t runtime_lookup(const RuntimeExport *table, size_t count, const char *name) {
-    (void)table; (void)count; (void)name;
-    return 0;
-}
 
 static void inject(const char *path, const char *tokens) {
     FILE *f=fopen(path,"w");
@@ -24,6 +20,7 @@ int main(void) {
     assert(fd>=0);
     close(fd);
     setenv("BB_PAD_FILE",path,1);
+    setenv("BB_PAD_HOST","1",1); /* This fixture combines the pad file with a virtual SDL pad. */
     setenv("SDL_VIDEODRIVER","dummy",1);
     /* Only the virtual test controller is a gamepad, whatever is plugged in. */
     SDL_SetHint(SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT,"0x1d50/0x6189");

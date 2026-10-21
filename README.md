@@ -41,6 +41,32 @@ This client ships with a built in updater that can be toggled on/off, and update
 - In the Display tab, a Steam Deck mode is auto-selected if you are on SteamOS. With this enabled, expect an average of 25-30fps with occasional dips during demanding segments.
 - It is recommended to set your FPS cap to 30fps on the Steam Deck power menu.
 
+### Integrated runtime improvements
+
+- Compute fences stay ordered with draw-pipe work without draining it for every fence;
+  `BB_ASC_FENCE_PIPE=0` selects the previous synchronous path.
+- Idle job workers use the engine's sleep/wake path (`BB_JOB_SLEEP=0` keeps spinning).
+- Nested indirect-buffer coroutine frames are freed. Small compute-written buffers are
+  copied back before end-of-pipe labels (`BB_READBACK_SMALL_BUFFERS=0` disables that readback).
+- Graphics and graphics-queue compute pipelines can compile on preparation workers, cached
+  pipelines preload in the background, and the Vulkan driver's pipeline cache is persisted.
+  `BB_PREP_COMPILE=0`, `BB_PREP_COMPUTE=0`, and `BB_WARM_MODE=0` disable the respective paths.
+  FSR 3 context creation starts behind the menus (`BB_NO_PRECREATE=1` disables precreation).
+- Mesh-raycaster copies land before guest-visible labels, including pipelined compute
+  fences; `BB_SCALAR_COPY64_DEFER=0` uses synchronous readback instead.
+- U1 initially opens its own front end, then allows returning to the collection;
+  `BB_SKIP_COLLECTION_MENU=0` preserves the original initial menu.
+
+The shader cache is rebuilt once for the combined EXEC-scope and motion-address changes.
+These changes have container build/test coverage and synthetic runtime smoke coverage, not
+a new Steam Deck gameplay or frame-rate certification.
+
+Linux public packages do not bundle the NVIDIA DLSS SDK or FSR 4 assets. The NVIDIA
+SDK has separate distribution/attribution conditions; the proposed precompiled FSR 4
+bundle also needs its AMD notices and a verified source/notices package for downstream
+shader modifications. This integration does not change those release permissions.
+FSR 3 remains available without those optional assets.
+
 ## Files needed 
 
 You must have an unencrypted extracted dump of the Uncharted: The Nathan Drake Collection (CUSA02320) v1.00.
