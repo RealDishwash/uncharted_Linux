@@ -1,0 +1,13 @@
+{
+  "amd": {"repository": "https://github.com/WinLinux1028/FidelityFX-SDK_WithFSR4", "commit": "01446e6a74888bf349652fcf2cbf5f642d30c2bf", "license": "MIT", "files": "sdk/**"},
+  "q2rtx": {"repository": "https://github.com/FireBurn/Q2RTX", "commit": "ae8d628fae208813172446d1e49ed94150b04658", "license": "GPL-2.0", "files": "tools/**", "upstream_directory": "src/refresh/vkpt/fsr4"},
+  "changes": ["Omitted unused FP8 models and Direct3D host build files.", "Added a source-level pass-11 dispatch bounds guard in FNB_CT2D_ADD.hlsli (the existing port previously applied this correction after SPIR-V decompilation)."],
+  "weights": {
+    "native": {"initializers_sha256": "629d42b1cc57432e9f003599ad0f305fb1d311669a819b4f22ebb8f504dece1e", "pre_weights_sha256": "b6f2e8412d462ba207c1d5c7fe944486f474149bc3ee9234d6ae3f644235b102"},
+    "quality": {"initializers_sha256": "6fce93853235bbf8742210fb2bfd8653b70c90c722af17f5a37d1a3390156356", "pre_weights_sha256": "f125f216cbe7ea37ab621edf9b0c9a5ccc0e969f6a4d1d483c20637bac1fb046"},
+    "balanced": {"initializers_sha256": "a8e96ddb0c2a5f937011a78381a7975e99cd6e455ce72ef92f2f7dbff742e4c2", "pre_weights_sha256": "b9dd178acdd51c4298016d037bea4e15147358b4724c1da76b2a7bbf7009b069"},
+    "performance": {"initializers_sha256": "fe2ad00e9e7fc563bd9ee01ab72c82bb557bf0d8365a085e833749547e089aab", "pre_weights_sha256": "bb05b470e90f04d9eed0ea7600862992cc66be2b0d23c9d33142b907f9d50d68"},
+    "ultraperf": {"initializers_sha256": "666839fa4dd1232847a81231151f33391c4b8110a5c9808fc8c1cb7b4c5bb61b", "pre_weights_sha256": "18a895fc45db6a2391339ed54839c97dd7b3fb911bf306095b184271ada52c13"},
+    "drs": {"initializers_sha256": "00ab0bc1fd12a823bb0fc8cd227b0e2d15718fe2a2082e972c6e0b6e46c77a8c", "pre_weights_sha256": "6277a5d340d1e229312bf72b2fb4f3572c1a9d64e3d037be9fd93eafbad3ff3e"}
+  }
+}

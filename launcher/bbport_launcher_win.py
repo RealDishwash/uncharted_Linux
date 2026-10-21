@@ -214,12 +214,12 @@ FSR4_BASE = f'https://raw.githubusercontent.com/FireBurn/Q2RTX/{FSR4_COMMIT}/bas
 
 
 def fsr4_files():
-    """The FSR 4 v07 asset set of tools/fetch_fsr4_assets.sh (1080 and 2160 tiers)."""
-    files = ['LICENSE-FSR4-v07.txt', 'rcas.spv', 'spd_auto_exposure.spv']
+    """The FSR 4 v07 asset set (1080, 2160 and 4320 tiers)."""
+    files = ['rcas.spv', 'spd_auto_exposure.spv']
     for model in ('native', 'quality', 'balanced', 'performance', 'ultraperf', 'drs'):
         files += [f'fsr4_model_v07_i8_{model}_initializers.bin', f'fsr4_model_v07_i8_{model}_pre_weights.bin',
                   f'fsr4_model_v07_i8_{model}_shader_manifest.json']
-        for tier in ('1080', '2160'):
+        for tier in ('1080', '2160', '4320'):
             files += [f'fsr4_model_v07_i8_{model}_{tier}_pre.spv', f'fsr4_model_v07_i8_{model}_{tier}_post.spv']
             files += [f'fsr4_model_v07_i8_{model}_{tier}_pass{n}.spv' for n in range(1, 13)]
     return files

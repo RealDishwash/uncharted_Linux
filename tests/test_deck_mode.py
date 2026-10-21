@@ -58,13 +58,19 @@ class DeckModeTests(unittest.TestCase):
                           frame_gen_multiplier='4')
         self.assertEqual((env['BB_UPSCALER'], env['BB_FRAME_GEN'], env['BB_FRAME_GEN_MULTIPLIER']),
                          ('off', 'off', '2'))
+        env = environment(steam_deck=True, anti_aliasing='fsr411')
+        self.assertEqual(env['BB_UPSCALER'], 'off')
+        env = environment(steam_deck=True, anti_aliasing='fsr4')
+        self.assertEqual(env['BB_UPSCALER'], 'fsr4')
         env = environment(steam_deck=True, anti_aliasing='fsr3', frame_generation='fsr3')
         self.assertEqual((env['BB_UPSCALER'], env['BB_FRAME_GEN']), ('fsr3', 'fsr3'))
 
     def test_deck_allows(self):
         self.assertTrue(linux.deck_allows('frame_rate', '30'))
         self.assertFalse(linux.deck_allows('frame_rate', '120'))
-        self.assertFalse(linux.deck_allows('anti_aliasing', 'fsr4'))
+        self.assertTrue(linux.deck_allows('anti_aliasing', 'fsr4'))
+        self.assertFalse(linux.deck_allows('anti_aliasing', 'fsr411'))
+        self.assertFalse(linux.deck_allows('anti_aliasing', 'dlss'))
         self.assertTrue(linux.deck_allows('anti_aliasing', 'taa'))
         self.assertTrue(linux.deck_allows('window_size', '1280x800'))
 

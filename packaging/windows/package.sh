@@ -61,7 +61,7 @@ cp run.py LICENSE "$dest/"
 cp packaging/windows/README-Uncharted.txt "$dest/README.txt"
 mkdir -p "$dest/licenses"
 cp packaging/windows/licenses/*.txt "$dest/licenses/" 2>/dev/null || true
-# FSR 4 (the v07 INT8 model) when its assets are in fsr4_shaders/ (tools/fetch_fsr4_assets.sh).
+# FSR 4 v07 source-built assets, generated on Linux by tools/build_fsr4.py.
 if [[ -d fsr4_shaders ]]; then cp -r fsr4_shaders "$dest/"; fi
 # DLSS and DLSS Frame Generation (NVIDIA RTX): the MSVC-built bridge and NVIDIA's runtimes, next
 # to bb-probe.exe (packaging/windows/build_dlss.sh). Without them those options stay unavailable.

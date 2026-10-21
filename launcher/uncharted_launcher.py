@@ -86,7 +86,7 @@ SHARPENING = [('off', 'Off'), ('1000', 'Low'), ('500', 'Medium'), ('250', 'High'
 # Temporal anti-aliasing at the games' 1920x1080 (BB_UPSCALER): it takes the scene before the
 # games' post-processing with their own motion vectors, so it replaces their edge smoothing.
 ANTI_ALIASING = [('off', "Off (the game's own)"), ('taa', 'TAA'), ('fsr3', 'AMD FSR 3.1 (Native AA)'),
-                 ('fsr4', 'AMD FSR 4 (Native AA)'), ('dlss', 'NVIDIA DLSS (DLAA, GeForce RTX)')]
+                 ('fsr4', 'FSR 4 (experimental)'), ('dlss', 'NVIDIA DLSS (DLAA, GeForce RTX)')]
 FSR411 = ('fsr411', 'AMD FSR 4.1.1 (Native AA)')
 AA_SHARPNESS = [('0', 'Off'), ('0.2', 'Low'), ('0.4', 'Medium'), ('0.7', 'High')]
 # Frames generated between two of the game's (BB_FRAME_GEN, BB_FRAME_GEN_MULTIPLIER).
@@ -305,11 +305,40 @@ def display_refresh_rate():
     return None
 
 
-def fsr411_assets():
-    """FSR 4.1.1 needs its model assets, built from AMD's DLL (docs/upscaler.md)."""
-    return bool(os.environ.get('BB_FSR411_DIR')) or any(
-        (folder / 'fsr4_411').is_dir() for folder in (PORT_DIR, DATA_DIR))
+def find_fsr4_dir(env=None):
+    """Finds the directory containing FSR 4 v07 assets, honoring user overrides."""
+    if env is not None and env.get('BB_FSR4_DIR'):
+        return Path(env['BB_FSR4_DIR'])
+    if os.environ.get('BB_FSR4_DIR'):
+        return Path(os.environ['BB_FSR4_DIR'])
+    for folder in (PORT_DIR, DATA_DIR):
+        candidate = folder / 'fsr4_shaders'
+        if candidate.is_dir():
+            return candidate
+    return PORT_DIR / 'fsr4_shaders'
 
+
+def fsr4_assets(env=None):
+    """FSR 4 v07 asset availability (BB_FSR4_DIR override or packaged fsr4_shaders)."""
+    return find_fsr4_dir(env).is_dir()
+
+
+def find_fsr411_dir(env=None):
+    """Finds the directory containing FSR 4.1.1 model assets, honoring user overrides."""
+    if env is not None and env.get('BB_FSR411_DIR'):
+        return Path(env['BB_FSR411_DIR'])
+    if os.environ.get('BB_FSR411_DIR'):
+        return Path(os.environ['BB_FSR411_DIR'])
+    for folder in (PORT_DIR, DATA_DIR):
+        candidate = folder / 'fsr4_411'
+        if candidate.is_dir():
+            return candidate
+    return PORT_DIR / 'fsr4_411'
+
+
+def fsr411_assets(env=None):
+    """FSR 4.1.1 needs its model assets, built from AMD's DLL (docs/upscaler.md)."""
+    return find_fsr411_dir(env).is_dir()
 
 def input_ini_path():
     return Path(os.environ.get('BB_INPUT_CONFIG', DATA_DIR / 'input.ini'))
@@ -364,6 +393,14 @@ def game_environment(s, start=None):
     env['BB_FSR_SHARPNESS'] = str(s.get('aa_sharpness') or '0')
     env['BB_FRAME_GEN'] = str(s.get('frame_generation') or 'off')
     env['BB_FRAME_GEN_MULTIPLIER'] = str(s.get('frame_gen_multiplier') or '2')
+    if not env.get('BB_FSR4_DIR'):
+        fsr4_dir = find_fsr4_dir(env)
+        if fsr4_dir.is_dir():
+            env['BB_FSR4_DIR'] = str(fsr4_dir)
+    if not env.get('BB_FSR411_DIR'):
+        fsr411_dir = find_fsr411_dir(env)
+        if fsr411_dir.is_dir():
+            env['BB_FSR411_DIR'] = str(fsr411_dir)
     if not WINDOWS:  # Linux fork: Steam Deck mode, before the player's own variables
         uncharted_linux.deck_environment(s, env)
     for item in str(s['extra_env']).split():

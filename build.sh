@@ -95,6 +95,8 @@ for patch in gpu/patches/fsr-vulkan/*.patch; do
         git -C gpu/third_party/fsr-vulkan apply --no-index "$PWD/$patch" 2>/dev/null || true
     fi
 done
+# Open v07 shaders and weights are part of every Linux build, not downloaded release binaries.
+python3 tools/build_fsr4.py
 cmake -S gpu -B out/gpu -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBB_PGO="$pgo" \
     -DBB_MARCH="${BB_MARCH:-}" -DBB_LTO="${BB_LTO:-ON}" -DBB_PGO_DIR="$PWD/pgo" -DVulkan_INCLUDE_DIR="$vulkan_headers" >/dev/null
 echo "GPU library: PGO $pgo, LTO ${BB_LTO:-ON}${BB_MARCH:+, MARCH $BB_MARCH}"

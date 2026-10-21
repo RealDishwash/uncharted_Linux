@@ -13,7 +13,7 @@ import os
 import signal
 import sys
 from pathlib import Path
-from bbport_assets import fsr411_problem
+from bbport_assets import fsr4_problem, fsr411_problem
 from bbport_i18n import language, set_language, tr
 
 import gi
@@ -537,8 +537,12 @@ class LauncherWindow(Adw.ApplicationWindow):
     def update_upscaler_status(self):
         value = combo_value(self.upscaler_row)
         if value == "fsr4":
-            ok = (PORT_DIR / "fsr4_shaders").is_dir()
-            hint = tr("Ассеты найдены") if ok else tr("Нет ассетов: tools/fetch_fsr4_assets.sh")
+            directory = Path(os.environ["BB_FSR4_DIR"]) if os.environ.get("BB_FSR4_DIR") else (
+                PORT_DIR / "fsr4_shaders" if (PORT_DIR / "fsr4_shaders").is_dir() else DATA_DIR / "fsr4_shaders")
+            problem = fsr4_problem(directory, combo_value(self.output_row),
+                                   int(combo_value(self.preset_row)))
+            hint = tr("Ассеты для выбранного режима найдены") if not problem else (
+                tr("{}. Установите полный набор fsr4_shaders в {}.").format(problem, directory))
         elif value == "fsr411":
             directory = Path(os.environ["BB_FSR411_DIR"]) if os.environ.get("BB_FSR411_DIR") else (
                 PORT_DIR / "fsr4_411" if (PORT_DIR / "fsr4_411").is_dir() else DATA_DIR / "fsr4_411")

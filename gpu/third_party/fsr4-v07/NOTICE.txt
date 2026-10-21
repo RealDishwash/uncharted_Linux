@@ -1,0 +1,49 @@
+Open AMD FSR 4 v07 INT8/DOT4 assets
+=================================
+
+This package contains the open source-v07 model, NOT AMD FSR 4.1.1/4.1.2,
+"Lite", a Windows driver DLL, or an extracted proprietary model. No NVIDIA
+DLSS/NGX SDK or runtime library is used to build or run these FSR 4 assets.
+
+Source and per-file licensing
+----------------------------
+* gpu/third_party/fsr4-v07/sdk/**: AMD FidelityFX SDK source at
+  01446e6a74888bf349652fcf2cbf5f642d30c2bf in
+  https://github.com/WinLinux1028/FidelityFX-SDK_WithFSR4
+  Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
+  MIT terms are retained in FSR4-AMD-MIT.txt and the original source headers.
+  This includes the six 89,216-byte INT8 initializer files. The 1,024-byte
+  pre-pass weight files are generated directly from each model's pre.hlsl.
+  SOURCE.json pins both weight hashes for every model.
+
+* gpu/third_party/fsr4-v07/tools/**: Vulkan source preparation, compilation
+  recipe and descriptor-ABI validator from FireBurn/Q2RTX at
+  ae8d628fae208813172446d1e49ed94150b04658, src/refresh/vkpt/fsr4/.
+  GPL version 2; retain FSR4-Q2RTX-GPL.txt, including its copyright notices.
+  Q2RTX's historical copyright owners include NVIDIA Corporation; that is
+  GPL source attribution, not a proprietary NVIDIA SDK redistribution.
+
+* fsr4_shaders/*.spv: compiled during this port's normal build from the
+  above HLSL source and Vulkan source adaptations, not downloaded SPIR-V.
+  The AMD content remains MIT; Q2RTX Vulkan adaptations are GPL-2.0.
+  This port's additions are GPL-2.0-or-later; the combined work can be
+  distributed under GPL version 2. Retain both notices. The source-level
+  bounds correction in FNB_CT2D_ADD.hlsli replaces this port's former
+  post-compilation pass-11 guard.
+
+* FSR-Vulkan runtime/provider: gpu/third_party/fsr-vulkan, pinned by the
+  repository submodule; MIT, with FSR-Vulkan-MIT.txt and FSR-Vulkan-NOTICE.txt.
+
+Complete corresponding shader source, weight inputs, modifications and build
+scripts are in this repository (the same source revision as the application):
+  https://github.com/RealDishwash/uncharted_Linux
+  gpu/third_party/fsr4-v07/ and tools/build_fsr4.py
+FSR4-SOURCE.json records the original source revisions. fsr4_shaders/build.json
+records exact source and output SHA-256 identities for this build.
+
+Build-time compiler only: Microsoft DirectXShaderCompiler v1.9.2609, pinned
+release SHA-256 in tools/build_fsr4.py; downloaded into out/toolchains/ and
+not included in the application package. Its source and licenses are at
+https://github.com/microsoft/DirectXShaderCompiler/tree/v1.9.2609
+The legacy intrinsic compatibility wrapper is not enabled; DXC's native
+intrinsics evaluate their arguments normally.

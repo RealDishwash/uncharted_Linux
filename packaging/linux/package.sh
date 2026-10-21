@@ -70,6 +70,8 @@ echo "${linux_build}" > "$dest/LINUX_BUILD"
 for license in gpu/third_party/httplib/LICENSE:cpp-httplib launcher/fonts/OFL.txt:Cinzel; do
     if [[ -f ${license%%:*} ]]; then cp "${license%%:*}" "$dest/licenses/${license##*:}-LICENSE.txt"; fi
 done
+# Only the source-built, checksum-verified v07 inventory and its notices may enter a release.
+"$python" tools/build_fsr4.py --stage "$dest"
 # The bundled libraries' own copyright files (Debian keeps them per package).
 for library in "$dest"/bin/lib/*; do
     package=$(dpkg -S "$(readlink -f "/usr/lib/x86_64-linux-gnu/$(basename "$library")" 2>/dev/null || echo none)" 2>/dev/null | cut -d: -f1 | head -1 || true)

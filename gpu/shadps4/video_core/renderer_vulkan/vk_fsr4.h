@@ -4,8 +4,8 @@
 // motion vectors in render pixels (previous - current) and the jitter offset.
 //
 // The model is per preset (native, quality, balanced, performance, ultraperf) and per output
-// tier; its SPIR-V passes and weights come from tools/fetch_fsr4_assets.sh (BB_FSR4_DIR overrides
-// the fsr4_shaders directory). A preset change rebuilds the model graph.
+// tier; its SPIR-V passes and weights are built by tools/build_fsr4.py from vendored source
+// (BB_FSR4_DIR overrides fsr4_shaders). A preset change rebuilds the model graph.
 
 #pragma once
 

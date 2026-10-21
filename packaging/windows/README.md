@@ -39,7 +39,8 @@ game directly with the saved settings.
 `patches.py` applies the 1.09 patches only to a 1.09 game (`BB_FORCE_PATCHES=1` overrides);
 `run.py` then runs other versions at 30 FPS with live resolution changes.
 From a source tree it adds `C:\msys64\clang64\bin` (or `$MSYS2_ROOT`) to `PATH` for the DLLs.
-`bash tools/fetch_fsr4_assets.sh` works in the CLANG64 shell as on Linux.
+The portable v07 SPIR-V/weight set is now built from source on Linux by `bash build.sh`;
+Windows packaging can consume that generated `fsr4_shaders/` directory.
 
 DLSS (optional): `DLSS_SDK_ROOT=<checkout of github.com/NVIDIA/DLSS> bash
 packaging/windows/build_dlss.sh` builds `bbport_dlss.dll` (`gpu/dlss_bridge`, the only code that
