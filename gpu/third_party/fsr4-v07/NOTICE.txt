@@ -12,6 +12,11 @@ Source and per-file licensing
   https://github.com/WinLinux1028/FidelityFX-SDK_WithFSR4
   Copyright (c) 2024-2025 Advanced Micro Devices, Inc.
   MIT terms are retained in FSR4-AMD-MIT.txt and the original source headers.
+  Provenance (checked 2026-10-21): that repository is a GitHub fork of
+  GPUOpen-LibrariesAndSDKs/FidelityFX-SDK; commit 01446e6 is authored by an
+  @amd.com address, titled "AMD FidelityFX SDK 2.0.0" (2025-08-18), and carries
+  AMD's MIT license (docs/license.md). AMD's current v2.0.0 tag points to a
+  different commit (f4c1da8) without this FSR 4 source.
   This includes the six 89,216-byte INT8 initializer files. The 1,024-byte
   pre-pass weight files are generated directly from each model's pre.hlsl.
   SOURCE.json pins both weight hashes for every model.
