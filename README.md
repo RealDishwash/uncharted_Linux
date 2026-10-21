@@ -61,11 +61,31 @@ The shader cache is rebuilt once for the combined EXEC-scope and motion-address 
 These changes have container build/test coverage and synthetic runtime smoke coverage, not
 a new Steam Deck gameplay or frame-rate certification.
 
-Linux public packages do not bundle the NVIDIA DLSS SDK or FSR 4 assets. The NVIDIA
-SDK has separate distribution/attribution conditions; the proposed precompiled FSR 4
-bundle also needs its AMD notices and a verified source/notices package for downstream
-shader modifications. This integration does not change those release permissions.
-FSR 3 remains available without those optional assets.
+### FSR 4 (experimental, open v07)
+
+Linux packages include the open AMD **FSR 4 v07 INT8** model, built from the
+corresponding HLSL sources in `gpu/third_party/fsr4-v07/`. In the launcher's Display
+tab, select **FSR 4 (experimental)** under Anti-aliasing. It is available in Steam
+Deck mode but remains **off by default**; GPU cost and image quality on the Deck
+need qualification. Switch Anti-aliasing back to Off or FSR 3.1 if it is too costly.
+
+This is **not FSR 4.1.2 “Lite”**, which is proprietary driver content and is not
+downloaded, extracted, or included. The `fsr411` option remains unavailable in Deck
+mode. No NVIDIA DLSS/NGX components are added or packaged.
+
+`bash build.sh` builds every v07 shader, validates its SPIR-V/descriptor ABI, and
+verifies model weight hashes. The small initializer inputs are vendored; pre-pass
+weights are generated from the vendored HLSL. On first build, a SHA-256-pinned
+Microsoft DXC release is downloaded into `out/toolchains/` (build tool only, not
+shipped). Subsequent builds reuse assets only while source and output hashes match.
+No precompiled FSR 4 shader is downloaded. `packaging/linux/package.sh` refuses
+stale/tampered sets and ships only the verified inventory plus AMD MIT, Q2RTX GPLv2,
+and FSR-Vulkan notices in `licenses/`.
+
+The package locates its own `fsr4_shaders/` directory; `BB_FSR4_DIR` can explicitly
+select another complete v07 asset set. `fsr4_shaders/build.json` records the source,
+compiler and per-file checksums. Complete source/build scripts and provenance are
+in this repository; see `gpu/third_party/fsr4-v07/SOURCE.json` and `NOTICE.txt`.
 
 First startup creates missing parent directories for the GPU data/cache location, including
 a new XDG data directory or a fresh home directory.

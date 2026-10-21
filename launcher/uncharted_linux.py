@@ -468,10 +468,9 @@ DECK_LOCKED = ('window_size', 'present_mode', 'fullscreen')
 DECK_FRAME_RATES = ('30', '60')  # 30 by default: the Deck does not hold 60 yet
 # Choices the Deck's hardware cannot run (an RDNA 2 GPU, a 60 Hz screen): greyed out in Steam
 # Deck mode, and replaced by these settings' first Deck-safe value at launch.
-DECK_UNAVAILABLE = {'anti_aliasing': ('fsr4', 'fsr411', 'dlss'), 'frame_generation': ('dlss',),
+DECK_UNAVAILABLE = {'anti_aliasing': ('fsr411', 'dlss'), 'frame_generation': ('dlss',),
                     'frame_gen_multiplier': ('3', '4')}
 DECK_FALLBACK = {'anti_aliasing': 'off', 'frame_generation': 'off', 'frame_gen_multiplier': '2'}
-
 
 # The texts under upstream's settings rows, by row title: replaced, or None for none.
 ROW_HINTS = {'Frame rate': None,
@@ -913,7 +912,9 @@ def launcher_class(base, ns):
             (and not selectable) while Steam Deck mode is on."""
             var = self.var(key)
             values = [v for v, _t in options]
-            box = self.ttk.Combobox(parent, values=[_(t) for _v, t in options], state='readonly', width=width)
+
+            box = self.ttk.Combobox(parent, values=[_(t) for _v, t in options],
+                                    state='readonly', width=width)
             if var.get() not in values:
                 var.set(values[0])
             self.boxes = getattr(self, 'boxes', {})
@@ -924,7 +925,6 @@ def launcher_class(base, ns):
 
             def show(*_args):
                 box.current(values.index(var.get()) if var.get() in values else 0)
-
             def picked(_event):
                 value = values[box.current()]
                 if blocked(value):
