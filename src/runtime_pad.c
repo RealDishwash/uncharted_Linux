@@ -627,6 +627,9 @@ static void sample_host(PadData *d) {
  * options touchpad touchpad_left touchpad_right up down left right) are held while listed;
  * touchpad defaults to a left-side click; lx= ly= rx= ry= (0..255) override
  * the sticks. An empty file releases everything. */
+/* record_on / record_off in BB_PAD_FILE start and stop a BB_PAD_RECORD recording the way F9 does
+ * (a Steam Deck has no F9). -1: no request pending. */
+static int record_want=-1;
 static struct { uint32_t buttons; int stick[4]; int touch_side; float mouse[2]; } injected={0,{-1,-1,-1,-1},-1,{0,0}};
 static int replay_armed;      /* 1 while a BB_PAD_REPLAY recording plays, 2 once it ended */
 static uint64_t replay_start; /* 0: (re)start at the next sample */
@@ -663,6 +666,8 @@ static void read_inject(void) {
     char token[64];
     while (fscanf(f,"%63s",token)==1) {
         if (!strcmp(token,"replay") && replay_armed!=1) { replay_armed=1; replay_start=0; } /* BB_PAD_REPLAY */
+        if (!strcmp(token,"record_on")) record_want=1;   /* BB_PAD_RECORD without an F9 key */
+        if (!strcmp(token,"record_off")) record_want=0;
         if (!strcmp(token,"touchpad_left") || !strcmp(token,"touchpad_right")) {
             injected.buttons|=BTN_TOUCHPAD;
             injected.touch_side=!strcmp(token,"touchpad_right");
@@ -691,7 +696,9 @@ static void record_sample(const PadData *d) {
     if (!path || !*path || !sdl_ready) return;
     const bool *k=SDL_GetKeyboardState(NULL);
     const int f9=k && k[SDL_SCANCODE_F9];
-    if (f9 && !f9_was_down) {
+    const int toggle=(f9 && !f9_was_down) || (record_want==1 && !record_file) || (record_want==0 && record_file);
+    record_want=-1;
+    if (toggle) {
         if (record_file) {
             fclose(record_file); record_file=NULL;
             printf("Runtime: pad recording stopped (%s)\n",path);
