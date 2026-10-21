@@ -302,10 +302,9 @@ def steam_command(steam, launcher_file, game):
     return str(exe), options
 
 
-REPO_URL = 'https://github.com/spacepepperoni/uncharted_Linux'
-# Crash reports go to upstream's tracker: the fork has no issues, and most crashes are in the
-# emulation shared with upstream.
-UPSTREAM_ISSUES = 'https://github.com/Supermedo/uncharted_pc/issues'
+REPO_URL = 'https://github.com/RealDishwash/uncharted_Linux'
+# Bug reports and crash reports go to this fork's issue tracker.
+UPSTREAM_ISSUES = 'https://github.com/RealDishwash/uncharted_Linux/issues'
 
 
 def icon_image(name, size, color, background):
@@ -409,7 +408,7 @@ def system_summary():
 
 
 def crash_report_url(signature, text):
-    """A new-issue link on upstream's tracker with the crash line, the system and the end of the
+    """A new-issue link on the fork's tracker with the crash line, the system and the end of the
     log (GitHub opens it pre-filled; nothing is sent until the player submits it)."""
     import urllib.parse
     run = next((line for line in text.splitlines() if line.startswith('Run: ')), 'Run: ?')
