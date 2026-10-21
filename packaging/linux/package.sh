@@ -82,6 +82,8 @@ mkdir -p dist
 tar -C out/stage -czf dist/uncharted-linux.tar.gz uncharted-linux
 if [[ -n $variant ]]; then
     cp -f dist/uncharted-linux.tar.gz "dist/uncharted-linux-${variant}.tar.gz"
+else
+    cp -f dist/uncharted-linux.tar.gz "dist/uncharted-linux-generic.tar.gz"
 fi
 
 # The AppImage: the same files in one executable. Saves, settings and generated files go to
@@ -102,5 +104,7 @@ fi
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --no-appstream "$appdir" dist/Uncharted-x86_64.AppImage >/dev/null
 if [[ -n $variant ]]; then
     cp -f dist/Uncharted-x86_64.AppImage "dist/Uncharted-x86_64-${variant}.AppImage"
+else
+    cp -f dist/Uncharted-x86_64.AppImage "dist/Uncharted-x86_64-generic.AppImage"
 fi
 ls -lh dist/uncharted-linux*.tar.gz dist/Uncharted*.AppImage

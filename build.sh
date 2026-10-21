@@ -91,8 +91,17 @@ if [[ ! -f gpu/third_party/fsr-vulkan/CMakeLists.txt || ! -f gpu/third_party/img
     git submodule update --init --recursive
 fi
 for patch in gpu/patches/fsr-vulkan/*.patch; do
-    if ! git -C gpu/third_party/fsr-vulkan apply --no-index --reverse --check "$PWD/$patch" 2>/dev/null; then
-        git -C gpu/third_party/fsr-vulkan apply --no-index "$PWD/$patch" 2>/dev/null || true
+    if git -C gpu/third_party/fsr-vulkan apply --reverse --check "$PWD/$patch" 2>/dev/null; then
+        : # already applied
+    elif git -C gpu/third_party/fsr-vulkan apply "$PWD/$patch" 2>/dev/null; then
+        : # applied with git
+    elif patch -R -p1 -d gpu/third_party/fsr-vulkan -s -f --dry-run < "$patch" 2>/dev/null; then
+        : # already applied
+    elif patch -N -p1 -d gpu/third_party/fsr-vulkan -s -f < "$patch"; then
+        : # applied with patch
+    else
+        echo "Failed to apply $patch" >&2
+        exit 1
     fi
 done
 cmake -S gpu -B out/gpu -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBB_PGO="$pgo" \

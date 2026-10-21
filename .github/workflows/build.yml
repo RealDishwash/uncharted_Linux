@@ -21,11 +21,11 @@ on:
       march:
         description: 'CPU architecture (znver2, or blank for generic)'
         required: false
-        default: 'znver2'
-      pgo:
-        description: 'PGO mode (use, generate, off, or blank for auto)'
-        required: false
         default: ''
+      pgo:
+        description: 'PGO mode (use, generate, off, or blank for default)'
+        required: false
+        default: 'off'
       opt:
         description: 'Optimization level for bb-probe (-O2 or -O3)'
         required: false
@@ -77,7 +77,7 @@ jobs:
       - name: Build
         run: |
           git config --global --add safe.directory '*'
-          export BB_MARCH="${{ inputs.march != '' && inputs.march || (github.ref == 'refs/heads/main' && 'znver2' || '') }}"
+          export BB_MARCH="${{ inputs.march || '' }}"
           export BB_PGO="${{ inputs.pgo || '' }}"
           export BB_OPT="${{ inputs.opt || '-O2' }}"
           BB_JOBS=3 bash build.sh
