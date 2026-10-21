@@ -57,10 +57,30 @@ static void RegisterSrtWalkerFaultHandler() {
     });
 }
 
+// bbport: a draw-preparation worker translates with a recovery point armed, and a GPU assertion
+// (common/assert.cpp) jumps back to it. A jump out of code holding g_srt_mutex would skip the
+// lock's release and freeze every later walker generation, so the recovery point is suspended
+// while the mutex is held: an assertion there stops the port (exit 23) instead.
+class SuspendFaultRecovery {
+public:
+    SuspendFaultRecovery() : saved{runtime_fault_recover} {
+        runtime_fault_recover = nullptr;
+    }
+    ~SuspendFaultRecovery() {
+        runtime_fault_recover = saved;
+    }
+    SuspendFaultRecovery(const SuspendFaultRecovery&) = delete;
+    SuspendFaultRecovery& operator=(const SuspendFaultRecovery&) = delete;
+
+private:
+    sigjmp_buf* saved;
+};
+
 namespace Shader {
 
 PFN_SrtWalker RegisterWalkerCode(const u8* ptr, size_t size) {
     RegisterSrtWalkerFaultHandler();
+    SuspendFaultRecovery no_recovery;
     std::scoped_lock lock{g_srt_mutex};
     const auto func_addr = (PFN_SrtWalker)g_srt_codegen.getCurr();
     g_srt_codegen.db(ptr, size);
@@ -104,13 +124,6 @@ static bool SrtWalkerSignalHandler(void* context, void* fault_address) {
     const void* code = Common::GetRip(context);
     if (code < code_start || code >= code_end) {
         return false; // Not in SRT code range
-    }
-    // bbport: walks ahead of the game (draw preparation workers, the recording thread's table
-    // check) may follow pointers into memory the game has reused since. They go back to their
-    // recovery point (probe.c) and the GPU thread walks the tables itself; patching here made
-    // one stale read zero that load for good.
-    if (runtime_fault_recover) {
-        return false;
     }
 
     // bbport: the draw preparation workers run walkers concurrently, and two of them can fault
@@ -765,6 +778,7 @@ static void VisitPointer(const IR::Value& off_dw, IR::Inst* subtree, PassInfo& p
 
 static void GenerateSrtProgram(Info& info, PassInfo& pass_info) {
     Xbyak::CodeGenerator& c = g_srt_codegen;
+    SuspendFaultRecovery no_recovery;
     std::scoped_lock srt_lock{g_srt_mutex};
 
     if (pass_info.srt_roots.empty()) {
